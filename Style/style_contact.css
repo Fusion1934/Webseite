@@ -52,6 +52,7 @@
 }
 
 @media (max-width: 700px) {
+
   .contact-list p {
     min-height: var(--rule-gap);
     align-items: flex-end;
@@ -63,5 +64,9 @@
     top: 400px;
     margin: 26px auto 0;
     transform: rotate(3deg);
+  }
+
+  .page::before {
+    top: 88px;
   }
 }
