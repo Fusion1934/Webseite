@@ -21,6 +21,26 @@ body {
   background-color: var(--paper);
 }
 
+.top-bar,
+.accent-line,
+.contact-list,
+.note {
+  position: relative;
+  z-index: 1;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--paper);
+  padding: 10px 0 12px;
+}
+
 .top-bar > h1 {
   margin: 0;
   margin-top: 10px;
@@ -29,6 +49,12 @@ body {
   line-height: 1;
   letter-spacing: -0.04em;
   font-weight: 600;
+}
+
+.accent-line {
+  height: 4px;
+  background: var(--accent);
+  margin: 0 -24px 56px;
 }
 
 .close-button {
@@ -102,5 +128,21 @@ body {
 
   .note {
     width: min(300px, 88vw);
+  }
+  
+  :root {
+    --rule-gap: 52px;
+  }
+
+  .page {
+    padding: 16px 14px 48px;
+  }
+
+  .page::before {
+    top: 124px;
+  }
+
+  .accent-line {
+    margin: 0 -14px 40px;
   }
 }
