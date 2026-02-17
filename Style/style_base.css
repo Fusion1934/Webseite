@@ -1,0 +1,106 @@
+:root {
+  --paper: #f1f1f1;
+  --line: #86b9e1;
+  --ink: #111111;
+  --muted: #666666;
+  --accent: #d85a62;
+  --note: #f3d990;
+  --rule-gap: 60px;
+  --rule-thickness: 3px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Inter", "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background-color: var(--paper);
+}
+
+.top-bar > h1 {
+  margin: 0;
+  margin-top: 10px;
+  font-family: "Sora", "Avenir Next", "Trebuchet MS", sans-serif;
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+}
+
+.close-button {
+  width: clamp(68px, 10vw, 96px);
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 50%;
+  background: #dcdcdc;
+  position: relative;
+  cursor: pointer;
+}
+
+.close-button span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 46%;
+  height: 4px;
+  background: #000000;
+  border-radius: 999px;
+  transform-origin: center;
+}
+
+.close-button span:first-child {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.close-button span:last-child {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.contact-list a {
+  text-decoration: none;
+  color: var(--muted);
+  font-size: clamp(1.7rem, 2.55vw, 3rem);
+  line-height: 1;
+}
+
+.contact-list a.primary {
+  color: #000000;
+  font-weight: 700;
+}
+
+.note {
+  width: min(300px, 76vw);
+  min-height: 260px;
+  padding: 24px;
+  background: var(--note);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: clamp(1.45rem, 1.6vw, 2rem);
+  color: #2a2a2a;
+}
+
+.note > p {
+  margin: 0;
+}
+
+.signature {
+  text-align: right;
+  margin: 18px 0 0;
+  color: #6e5f39;
+}
+
+@media (max-width: 700px) {
+  .contact-list a {
+    font-size: clamp(1.2rem, 7vw, 1.9rem);
+  }
+
+  .note {
+    width: min(300px, 88vw);
+  }
+}
