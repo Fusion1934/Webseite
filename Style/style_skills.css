@@ -8,24 +8,29 @@
 .skills-page::before {
   content: "";
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: var(--rules-start);
+  bottom: 0;
   z-index: 0;
   background-image: repeating-linear-gradient(
     to bottom,
-    transparent 0 calc(59px - var(--rule-thickness)),
-    var(--line) calc(59px - var(--rule-thickness)) 59px
+    transparent 0 calc(var(--rule-gap) - var(--rule-thickness)),
+    var(--line) calc(var(--rule-gap) - var(--rule-thickness)) var(--rule-gap)
   );
 }
 
-.skills-page .top-bar,
-.skills-page .accent-line,
 .skills-section {
   position: relative;
   z-index: 1;
 }
 
 .skills-section {
-  margin: 24px 0 68px;
+  margin: 0 0 68px;
+}
+
+.skills-section + .skills-section {
+  margin-top: 24px;
 }
 
 .skills-section h2 {
@@ -41,6 +46,7 @@
   grid-template-columns: 1.2fr 1fr;
   gap: 14px;
   align-items: center;
+  position: relative;
 }
 
 .left-image {
@@ -140,6 +146,26 @@
   right: 55px;
 }
 
+@media (min-width: 1025px) {
+  .right-image .note-card {
+    margin-right: -82px;
+    z-index: 3;
+  }
+
+  .right-image .polaroid {
+    z-index: 2;
+  }
+
+  .left-image .note-card {
+    margin-left: -78px;
+    z-index: 3;
+  }
+
+  .left-image .polaroid {
+    z-index: 2;
+  }
+}
+
 @media (max-width: 1024px) {
   .split,
   .left-image {
@@ -177,6 +203,11 @@
     position: static;
     width: clamp(120px, 26vw, 180px);
   }
+
+  .right-image .note-card,
+  .left-image .note-card {
+    margin: 0;
+  }
 }
 
 @media (max-width: 700px) {
@@ -184,16 +215,12 @@
     padding: 16px 14px 52px;
   }
 
-  .skills-page::before {
-    background-image: repeating-linear-gradient(
-      to bottom,
-      transparent 0 calc(54px - var(--rule-thickness)),
-      var(--line) calc(54px - var(--rule-thickness)) 54px
-    );
+  .skills-section {
+    margin: 0 0 52px;
   }
 
-  .skills-section {
-    margin: 22px 0 52px;
+  .skills-section + .skills-section {
+    margin-top: 22px;
   }
 
   .skills-section h2 {

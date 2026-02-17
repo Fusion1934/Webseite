@@ -43,8 +43,4 @@
     margin: 26px auto 0;
     transform: rotate(3deg);
   }
-
-  .page::before {
-    top: 88px;
-  }
 }

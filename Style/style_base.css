@@ -7,6 +7,8 @@
   --note: #f3d990;
   --rule-gap: 60px;
   --rule-thickness: 3px;
+  --rules-start: 180px;
+  --after-header-gap: 80px;
 }
 
 * {
@@ -25,7 +27,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 160px;
+  top: var(--rules-start);
   bottom: 0;
   z-index: 0;
   background-image: repeating-linear-gradient(
@@ -43,8 +45,6 @@ body {
   background-color: var(--paper);
 }
 
-.top-bar,
-.accent-line,
 .contact-list,
 .note {
   position: relative;
@@ -52,18 +52,23 @@ body {
 }
 
 .top-bar {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  margin-bottom: 20px;
+  row-gap: 18px;
+  width: 100vw;
+  margin: 0 calc(50% - 50vw);
   position: sticky;
   top: 0;
-  z-index: 40;
+  z-index: 60;
   background: var(--paper);
-  padding: 10px 0 12px;
+  padding: 10px 24px 0;
+  padding-bottom: 0;
 }
 
 .top-bar > h1 {
+  grid-column: 1;
+  grid-row: 1;
   margin: 0;
   margin-top: 10px;
   font-family: "Sora", "Avenir Next", "Trebuchet MS", sans-serif;
@@ -73,11 +78,26 @@ body {
   font-weight: 600;
 }
 
+.top-bar > .close-button {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.top-bar > .accent-line {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.page > .top-bar + * {
+  margin-top: var(--after-header-gap);
+}
+
 .accent-line {
   height: 4px;
   background: var(--accent);
   width: 100vw;
-  margin: 0 calc(50% - 50vw) 56px;
+  margin: 0 calc(50% - 50vw) 0;
+  padding-bottom: 0;
 }
 
 .close-button {
@@ -146,9 +166,14 @@ body {
 
 @media (max-width: 700px) {
   .top-bar {
-    margin-bottom: 10px;
+    width: 100vw;
+    margin: 0 calc(50% - 50vw);
     padding: 6px 0 8px;
+    padding-left: 14px;
+    padding-right: 14px;
+    padding-bottom: 0;
     align-items: center;
+    row-gap: 12px;
   }
 
   .top-bar > h1 {
@@ -173,7 +198,9 @@ body {
   }
   
   :root {
-    --rule-gap: 52px;
+    --rule-gap: 60px;
+    --rules-start: 124px;
+    --after-header-gap: 80px;
   }
 
   .page {
@@ -181,10 +208,7 @@ body {
   }
 
   .accent-line {
-    margin: 0 calc(50% - 50vw) 28px;
+    margin: 0 calc(50% - 50vw) 0;
   }
 
-  .page::before {
-    top: 88px;
-  }
 }
