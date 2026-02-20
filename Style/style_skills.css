@@ -44,7 +44,7 @@
 .split {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
-  gap: 14px;
+  gap: 6px;
   align-items: center;
   position: relative;
 }
@@ -54,8 +54,9 @@
 }
 
 .note-card {
-  padding: 22px 26px;
-  font-size: clamp(1.05rem, 1.9vw, 1.7rem);
+  width: min(100%, 500px);
+  padding: 20px 22px;
+  font-size: clamp(1.15rem, 1.95vw, 2rem);
   line-height: 1.2;
   color: #1e1e1e;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
@@ -87,9 +88,6 @@
 
 .polaroid {
   margin: 0;
-  background: #f4f4f4;
-  /* padding: 14px 14px 22px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);*/
   transform: rotate(-2deg);
 }
 
@@ -103,12 +101,17 @@
   height: auto;
 }
 
+.polaroid.project img {
+  width: 80%;
+  height: auto;
+}
+
 .tools .split {
   align-items: start;
 }
 
 .tools .note-card {
-  max-width: 740px;
+  max-width: 500px;
   transform: rotate(3deg);
 }
 
@@ -146,33 +149,66 @@
   right: 55px;
 }
 
-@media (min-width: 1025px) {
-  .right-image .note-card {
-    margin-right: -82px;
+@media (min-width: 701px) {
+  .split:not(.tools-row) {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0;
+    padding-inline: clamp(28px, 5vw, 72px);
+  }
+
+  .split:not(.tools-row) .polaroid {
+    width: min(680px, 58vw);
+    margin: 0;
+    z-index: 2;
+  }
+
+  .split:not(.tools-row) .note-card {
+    width: min(460px, 36vw);
     z-index: 3;
+  }
+
+  .right-image .note-card {
+    order: 1;
+    margin: clamp(24px, 3vw, 48px) clamp(-50px, -10vw, -90px) 0 0;
   }
 
   .right-image .polaroid {
-    z-index: 2;
-  }
-
-  .left-image .note-card {
-    margin-left: -78px;
-    z-index: 3;
+    order: 2;
   }
 
   .left-image .polaroid {
-    z-index: 2;
+    order: 1;
+  }
+
+  .left-image .note-card {
+    order: 2;
+    margin: clamp(24px, 3vw, 48px) 0 0 clamp(-50px, -10vw, -90px);
+  }
+
+  .tools-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(14px, 2.4vw, 28px);
+    padding-inline: clamp(28px, 5vw, 72px);
+  }
+
+  .tools-row .note-card {
+    width: min(460px, 36vw);
+    max-width: none;
+    margin: clamp(20px, 2.6vw, 40px) 0 0;
+    order: 1;
+  }
+
+  .tools-row .tool-icons {
+    width: min(460px, 34vw);
+    order: 2;
   }
 }
 
 @media (max-width: 1024px) {
-  .split,
-  .left-image {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-
   .polaroid,
   .polaroid.wide {
     transform: none;
@@ -204,8 +240,14 @@
     width: clamp(120px, 26vw, 180px);
   }
 
-  .right-image .note-card,
-  .left-image .note-card {
+  .tools-row {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .tools-row .note-card {
+    width: 100%;
+    max-width: none;
     margin: 0;
   }
 }
@@ -229,7 +271,46 @@
   }
 
   .note-card {
+    width: auto;
+    max-width: none;
+    margin-inline: 0;
     padding: 16px 16px 18px;
-    font-size: clamp(1rem, 4.9vw, 1.4rem);
+    font-size: clamp(1.2rem, 5.6vw, 1.7rem);
+  }
+
+  .split:not(.tools-row),
+  .left-image:not(.tools-row) {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .split:not(.tools-row) .note-card {
+    order: 1;
+    width: 100%;
+    margin: 0;
+  }
+
+  .split:not(.tools-row) .polaroid {
+    order: 2;
+    width: 100%;
+    margin: 0;
+  }
+
+  .tools-row {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .tools-row .note-card {
+    order: 1;
+    width: 100%;
+    margin: 0;
+  }
+
+  .tools-row .tool-icons {
+    order: 2;
+    width: 100%;
   }
 }
