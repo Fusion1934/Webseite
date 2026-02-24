@@ -130,24 +130,27 @@
 
 .adobe {
   top: 12px;
-  right: 120px;
+  right: 280px;
+  transform: rotate(-12deg);
 }
 
 .houdini {
-  top: 175px;
-  left: 20px;
+  top: 270px;
+  left: -200px;
   width: clamp(170px, 22vw, 280px);
+  transform: rotate(4deg);
 }
 
 .figma {
   top: 300px;
-  left: -18px;
+  right: 10px;
   width: clamp(120px, 15vw, 180px);
+  transform: rotate(-6deg);
 }
 
 .blender {
-  top: 338px;
-  right: 55px;
+  top: 0px;
+  right: 0px;
 }
 
 @media (min-width: 701px) {
@@ -313,5 +316,8 @@
   .tools-row .tool-icons {
     order: 2;
     width: 100%;
+  }
+  .tools-icons .icon {
+    transform: rotate(0deg) !important;
   }
 }
