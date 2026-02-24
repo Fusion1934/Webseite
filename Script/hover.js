@@ -19,12 +19,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const label = labelNode?.textContent?.trim() || img?.alt?.replace(/\s+logo$/i, "") || "Logo";
 
     item.addEventListener("mouseenter", (event) => {
+      if (item.classList.contains("is-dragging")) return;
       tooltip.textContent = label;
       tooltip.classList.add("is-visible");
       moveTooltip(event);
     });
 
-    item.addEventListener("mousemove", moveTooltip);
+    item.addEventListener("mousemove", (event) => {
+      if (item.classList.contains("is-dragging")) return;
+      moveTooltip(event);
+    });
+
+    item.addEventListener("pointerdown", () => {
+      tooltip.classList.remove("is-visible");
+    });
 
     item.addEventListener("mouseleave", () => {
       tooltip.classList.remove("is-visible");

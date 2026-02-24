@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ".note, .note-card, .skills-page .polaroid, .skills-page .logo-item"
   );
   if (!draggableItems.length) return;
+  const mobileQuery = window.matchMedia("(max-width: 700px)");
 
   let active = null;
   let zCounter = 200;
@@ -15,8 +16,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return { x, y };
   };
 
-  const getBoundsContainer = (element) =>
-    element.closest(".tool-icons, .split, .page") || element.parentElement || document.body;
+  const getBoundsContainer = (element) => {
+    // Logos are intentionally positioned beyond the tool-icons box, so using that box
+    // as the drag boundary causes snapping/jitter. Constrain them to the page instead.
+    if (element.classList.contains("logo-item")) {
+      return element.closest(".page") || document.body;
+    }
+
+    return element.closest(".tool-icons, .split, .page") || element.parentElement || document.body;
+  };
 
   const onPointerMove = (event) => {
     if (!active) return;
@@ -44,12 +52,22 @@ document.addEventListener("DOMContentLoaded", () => {
     active = null;
   };
 
+  const resetDraggedPositions = () => {
+    endDrag();
+    draggableItems.forEach((element) => {
+      element.style.translate = "";
+      element.style.zIndex = "";
+      element.classList.remove("is-dragging");
+    });
+  };
+
   draggableItems.forEach((element) => {
     element.addEventListener("dragstart", (event) => {
       event.preventDefault();
     });
 
     element.addEventListener("pointerdown", (event) => {
+      if (mobileQuery.matches) return;
       if (event.button !== 0) return;
 
       const boundsElement = getBoundsContainer(element);
@@ -90,4 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("pointermove", onPointerMove);
   document.addEventListener("pointerup", endDrag);
   document.addEventListener("pointercancel", endDrag);
+  window.addEventListener("resize", resetDraggedPositions);
+  window.addEventListener("orientationchange", resetDraggedPositions);
+  mobileQuery.addEventListener("change", resetDraggedPositions);
 });
