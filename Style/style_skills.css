@@ -1,7 +1,7 @@
 .skills-page {
   min-height: 100vh;
   position: relative;
-  padding: 18px 24px 72px;
+  padding: 18px 24px 140px;
   isolation: isolate;
 }
 
@@ -90,6 +90,8 @@
 .polaroid {
   margin: 0;
   transform: rotate(-2deg);
+  cursor: grab;
+  touch-action: none;
 }
 
 .polaroid.wide {
@@ -121,8 +123,18 @@
   position: relative;
 }
 
-.icon {
+.logo-item {
   position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+}
+
+.icon {
+  position: static;
+  display: block;
   width: clamp(130px, 18vw, 230px);
   height: auto;
   filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.15));
@@ -137,20 +149,59 @@
 .houdini {
   top: 270px;
   left: -200px;
-  width: clamp(170px, 22vw, 280px);
   transform: rotate(4deg);
 }
 
 .figma {
   top: 300px;
   right: 10px;
-  width: clamp(120px, 15vw, 180px);
   transform: rotate(-6deg);
 }
 
 .blender {
   top: 0px;
   right: 0px;
+}
+
+.houdini .icon {
+  width: clamp(170px, 22vw, 280px);
+}
+
+.figma .icon {
+  width: clamp(120px, 15vw, 180px);
+}
+
+.logo-label {
+  display: none;
+}
+
+.mouse-logo-tooltip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translate3d(-9999px, -9999px, 0);
+  background: #ffffff;
+  color: #202020;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  z-index: 200;
+}
+
+.mouse-logo-tooltip.is-visible {
+  opacity: 1;
+}
+
+.skills-page .polaroid.is-dragging,
+.skills-page .logo-item.is-dragging {
+  cursor: grabbing;
 }
 
 @media (min-width: 701px) {
@@ -235,11 +286,16 @@
     justify-items: center;
   }
 
-  .icon,
+  .logo-item,
   .adobe,
   .houdini,
   .figma,
   .blender {
+    position: static;
+    transform: none;
+  }
+
+  .icon {
     position: static;
     width: clamp(120px, 26vw, 180px);
   }
@@ -258,7 +314,7 @@
 
 @media (max-width: 700px) {
   .skills-page {
-    padding: 16px 14px 52px;
+    padding: 16px 14px 110px;
   }
 
   .skills-section {
@@ -317,7 +373,9 @@
     order: 2;
     width: 100%;
   }
-  .tools-icons .icon {
+
+  .tool-icons .icon {
     transform: rotate(0deg) !important;
   }
+
 }

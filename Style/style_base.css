@@ -154,6 +154,19 @@ body {
   color: #2a2a2a;
 }
 
+.note,
+.note-card {
+  cursor: grab;
+  touch-action: none;
+}
+
+.note.is-dragging,
+.note-card.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+  z-index: 120 !important;
+}
+
 .note > p {
   margin: 0;
 }
