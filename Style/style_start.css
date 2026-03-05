@@ -100,8 +100,7 @@
   position: absolute;
   bottom: -40px;
   /* Bring them up slightly to see them */
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -109,7 +108,6 @@
   /* Overlap cards heavily */
   width: 100%;
   z-index: 5;
-  perspective: 1000px;
   pointer-events: none;
 }
 
@@ -156,27 +154,50 @@
 }
 
 /* Hover states */
-.preview-card:hover {
+.preview-card:not(.is-expanded):hover {
   z-index: 10;
 }
 
-.card-work:hover {
+.card-work:not(.is-expanded):hover {
   transform: rotate(-1deg) translateY(-25px) scale(1.05);
 }
 
-.card-skills:hover {
+.card-skills:not(.is-expanded):hover {
   transform: rotate(0deg) translateY(-25px) scale(1.05);
 }
 
-.card-about:hover {
+.card-about:not(.is-expanded):hover {
   transform: rotate(-1deg) translateY(-25px) scale(1.05);
 }
 
-.card-contact:hover {
+.card-contact:not(.is-expanded):hover {
   transform: rotate(1deg) translateY(-25px) scale(1.05);
 }
 
-/* Card Inner Styling (Notebook lines for placeholders) */
+/* Expanded State */
+.preview-card.is-expanded {
+  position: fixed;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  transform: none !important;
+  /* Remove rotation and translation */
+  border-radius: 0;
+  z-index: 9999 !important;
+  cursor: default;
+  transition: none !important;
+  /* Suspend CSS transitions while JS WAAPI takes over */
+}
+
+/* When expanded, the red line vanishes to reveal the full page cleanly */
+.preview-card.is-expanded::before {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Card Inner Styling */
 .card-inner {
   width: 100%;
   height: 100%;
@@ -195,7 +216,7 @@
   top: 0;
   left: 0;
   width: 400%;
-  /* Make it 4 times larger to scale down by 0.25 */
+  /* Make it 4 times larger to scale down by 0.25 initially */
   height: 400%;
   transform: scale(0.25);
   transform-origin: top left;
@@ -203,6 +224,13 @@
   pointer-events: none;
   /* Prevent interaction with iframe content */
   background-color: transparent;
+  transition: transform 0.5s cubic-bezier(0.86, 0, 0.07, 1), width 0.5s cubic-bezier(0.86, 0, 0.07, 1), height 0.5s cubic-bezier(0.86, 0, 0.07, 1);
+}
+
+.preview-card.is-expanded .iframe-wrapper {
+  width: 100%;
+  height: 100%;
+  transform: scale(1);
 }
 
 .iframe-wrapper iframe {

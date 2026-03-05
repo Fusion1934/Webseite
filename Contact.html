@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="Style/style_base.css" />
   <link rel="stylesheet" href="Style/style_contact.css" />
 </head>
+
 <body>
   <main class="page">
     <header class="top-bar">
@@ -31,5 +33,17 @@
     </aside>
   </main>
   <script src="Script/drag_notes.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const closeBtn = document.querySelector('.close-button');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          // Tell the parent Start.html to close this iframe
+          window.parent.postMessage('close-iframe', '*');
+        });
+      }
+    });
+  </script>
 </body>
+
 </html>
