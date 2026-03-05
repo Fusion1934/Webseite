@@ -1,0 +1,282 @@
+.start-body {
+  overflow: hidden;
+  /* Prevent scrolling on the start page */
+  background-color: var(--paper);
+}
+
+.start-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* Move content up */
+  align-items: center;
+  min-height: 100vh;
+  padding: 18vh 0 0 0;
+  /* Add top padding to position it well */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Base page lines override for start page: no lines or different lines?
+   The image shows lines but they are very faint or absent in the main area.
+   Let's keep the --paper background. */
+.start-page::before {
+  display: none;
+  /* The reference image doesn't show the notebook lines on the background, only on cards */
+}
+
+/* --- Hero Section --- */
+
+.hero-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  /* Take full viewport width */
+  margin-top: 0;
+  /* Removed negative margin since we use flex-start now */
+  z-index: 10;
+}
+
+.hero-title {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: min(23vw, 320px);
+  /* Smaller size so it doesn't spill unreadably */
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  /* Relax tracking slightly */
+  margin: 0;
+  color: #000;
+  line-height: 0.8;
+  text-transform: uppercase;
+  z-index: 1;
+  text-align: center;
+  white-space: nowrap;
+  margin-left: -2vw;
+  /* Slight spillover */
+  margin-right: -2vw;
+}
+
+/* --- Tags --- */
+
+.tags-container {
+  position: absolute;
+  bottom: -25px;
+  /* Overlap the bottom of PORTFOLIO */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  z-index: 2;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.tags-image {
+  max-width: clamp(250px, 60vw, 800px);
+  height: auto;
+  pointer-events: none;
+}
+
+/* --- Custom Cursor Label --- */
+
+.custom-cursor-label {
+  position: absolute;
+  right: clamp(-10px, 5vw, 50px);
+  bottom: -50px;
+  z-index: 20;
+}
+
+.cursor-image {
+  max-width: clamp(150px, 20vw, 300px);
+  height: auto;
+  pointer-events: none;
+}
+
+/* --- Bottom Cards --- */
+
+.cards-container {
+  position: absolute;
+  bottom: -40px;
+  /* Bring them up slightly to see them */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: -30px;
+  /* Overlap cards heavily */
+  width: 100%;
+  z-index: 5;
+  perspective: 1000px;
+  pointer-events: none;
+}
+
+/* Empty card styles for iframe previews */
+.preview-card {
+  position: relative;
+  width: clamp(260px, 35vw, 400px);
+  /* Wide landscape note card */
+  height: clamp(160px, 22vw, 250px);
+  margin: 0 -40px;
+  /* Spread them out horizontally */
+  background-color: #ffffff;
+  /* Solid white background */
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), 0 0 1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), z-index 0s;
+  transform-origin: bottom center;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  pointer-events: auto;
+  display: block;
+}
+
+/* Initial fan out rotations to match straight line desktop arrangement */
+.card-work {
+  transform: rotate(-3deg);
+  z-index: 1;
+}
+
+.card-skills {
+  transform: rotate(2deg) translateY(5px);
+  z-index: 2;
+}
+
+.card-about {
+  transform: rotate(-2deg) translateY(-2px);
+  z-index: 3;
+}
+
+.card-contact {
+  transform: rotate(4deg) translateY(8px);
+  z-index: 4;
+}
+
+/* Hover states */
+.preview-card:hover {
+  z-index: 10;
+}
+
+.card-work:hover {
+  transform: rotate(-1deg) translateY(-25px) scale(1.05);
+}
+
+.card-skills:hover {
+  transform: rotate(0deg) translateY(-25px) scale(1.05);
+}
+
+.card-about:hover {
+  transform: rotate(-1deg) translateY(-25px) scale(1.05);
+}
+
+.card-contact:hover {
+  transform: rotate(1deg) translateY(-25px) scale(1.05);
+}
+
+/* Card Inner Styling (Notebook lines for placeholders) */
+.card-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  /* Ensure content doesn't spill out of rounded corners */
+  border-radius: inherit;
+}
+
+/* --- Iframe Previews --- */
+
+.iframe-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400%;
+  /* Make it 4 times larger to scale down by 0.25 */
+  height: 400%;
+  transform: scale(0.25);
+  transform-origin: top left;
+  z-index: 1;
+  pointer-events: none;
+  /* Prevent interaction with iframe content */
+  background-color: transparent;
+}
+
+.iframe-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+}
+
+/* Ensure the iframe body is transparent to reveal the notebook background */
+.iframe-wrapper iframe html,
+.iframe-wrapper iframe body {
+  background: transparent !important;
+}
+
+/* Overlay to completely block iframe interaction and ensure hover works on the a tag */
+.iframe-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  background: transparent;
+}
+
+/* Remove CSS defined blue lines for placeholders since we used gradient background */
+.blue-line {
+  display: none;
+}
+
+/* --- Responsive Adjustments --- */
+
+@media (max-width: 800px) {
+  .tags-container {
+    width: 90%;
+    bottom: -15px;
+  }
+
+  .custom-cursor-label {
+    right: 0px;
+    bottom: -30px;
+  }
+
+  .preview-card {
+    margin: 0 -10px;
+  }
+}
+
+/* --- hover.js Tooltip Styles --- */
+.logo-label {
+  display: none;
+}
+
+.mouse-logo-tooltip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translate3d(-9999px, -9999px, 0);
+  background: #ffffff;
+  color: #202020;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  z-index: 9999;
+}
+
+.mouse-logo-tooltip.is-visible {
+  opacity: 1;
+}
