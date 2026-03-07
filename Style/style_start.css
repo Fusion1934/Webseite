@@ -74,7 +74,7 @@
 }
 
 .tags-image {
-  max-width: clamp(250px, 60vw, 800px);
+  max-width: clamp(300px, 100vw, 1000px);
   height: auto;
   pointer-events: none;
 }
@@ -89,7 +89,7 @@
 }
 
 .cursor-image {
-  max-width: clamp(150px, 20vw, 300px);
+  max-width: clamp(150px, 18vw, 250px);
   height: auto;
   pointer-events: none;
 }
