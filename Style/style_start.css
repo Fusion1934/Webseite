@@ -228,11 +228,6 @@ body.has-expanded-card .cards-container {
   pointer-events: none;
   /* Prevent interaction with iframe content */
   background-color: var(--paper);
-  transition: transform 520ms cubic-bezier(0.86, 0, 0.07, 1);
-}
-
-.preview-card.is-expanded .iframe-wrapper {
-  transform: scale(1);
 }
 
 .iframe-wrapper iframe {

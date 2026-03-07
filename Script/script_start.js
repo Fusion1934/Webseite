@@ -72,6 +72,12 @@ function openCard(card) {
   const rect = card.getBoundingClientRect();
   const fromTransform = `translate(${rect.left}px, ${rect.top}px) scale(${rect.width / window.innerWidth}, ${rect.height / window.innerHeight})`;
 
+  const iframeWrapper = card.querySelector(".iframe-wrapper");
+  if (iframeWrapper) {
+    iframeWrapper.style.transition = "none";
+    iframeWrapper.style.transform = "scale(1)";
+  }
+
   document.body.classList.add("has-expanded-card");
   card.classList.add("is-expanded");
   card.dataset.expanded = "true";
@@ -98,15 +104,56 @@ function closeCard(card) {
 
   const toTransform = `translate(${targetRect.left}px, ${targetRect.top}px) scale(${targetRect.width / window.innerWidth}, ${targetRect.height / window.innerHeight})`;
 
-  animateCardTransform(card, "translate(0px, 0px) scale(1, 1)", toTransform, "0px", "4px", CLOSE_DURATION_MS);
+  card.style.transition = "none";
+  card.style.transformOrigin = "top left";
+  card.style.transform = "translate(0px, 0px) scale(1, 1)";
+  card.style.borderRadius = "0px";
+  card.getBoundingClientRect();
 
-  window.setTimeout(() => {
+  // finish() removes is-expanded BEFORE clearing inline styles to avoid a snap.
+  const finish = () => {
+    cleanupTransition = null;
     card.classList.remove("is-expanded");
     card.dataset.expanded = "false";
     document.body.classList.remove("has-expanded-card");
     activeCard = null;
+    card.style.transition = "";
+    card.style.transformOrigin = "";
+    card.style.transform = "";
+    card.style.borderRadius = "";
+    const iframeWrapper = card.querySelector(".iframe-wrapper");
+    if (iframeWrapper) {
+      iframeWrapper.style.transition = "";
+      iframeWrapper.style.transform = "";
+    }
+  };
+
+  const fallbackTimer = window.setTimeout(() => {
+    card.removeEventListener("transitionend", handleEnd);
+    finish();
+  }, CLOSE_DURATION_MS + 80);
+
+  const handleEnd = (event) => {
+    if (event.target !== card || event.propertyName !== "transform") return;
+    card.removeEventListener("transitionend", handleEnd);
+    window.clearTimeout(fallbackTimer);
+    finish();
+  };
+
+  cleanupTransition = () => {
+    card.removeEventListener("transitionend", handleEnd);
+    window.clearTimeout(fallbackTimer);
     clearInlineAnimationStyles(card);
-  }, CLOSE_DURATION_MS + 16);
+    cleanupTransition = null;
+  };
+
+  card.addEventListener("transitionend", handleEnd);
+
+  requestAnimationFrame(() => {
+    card.style.transition = `transform ${CLOSE_DURATION_MS}ms ${EASING}, border-radius ${CLOSE_DURATION_MS}ms ${EASING}`;
+    card.style.transform = toTransform;
+    card.style.borderRadius = "4px";
+  });
 }
 
 function updatePreviewScales() {
