@@ -41,7 +41,7 @@
 
 .hero-title {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: min(23vw, 320px);
+  font-size: min(20vw, 260px);
   /* Smaller size so it doesn't spill unreadably */
   font-weight: 900;
   letter-spacing: -0.05em;
