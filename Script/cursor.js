@@ -1,8 +1,7 @@
-/* cursor.js – directional cursor matching Cursor.svg */
+/* cursor.js – animated gradient cursor matching Cursor.svg */
 (function () {
   'use strict';
 
-  // Skip on touch/mobile devices (no hover capability)
   if (window.matchMedia('(hover: none)').matches) return;
 
   // ── Cursor paths (verbatim from Cursor.svg, viewBox 0 0 58 63) ────────
@@ -20,14 +19,10 @@
     ' 8.16348 45.2655Z';
 
   // ── Geometry ───────────────────────────────────────────────────────────
-  var W = 46, H = Math.round(46 * 63 / 58); // 46 × 50 CSS px
-
-  // Tip: topmost point of outer arc ≈ viewBox (29, 3.9)
-  var TIP_X = Math.round(29 / 58 * W);  // ≈ 23
-  var TIP_Y = Math.round(3.9 / 63 * H); // ≈ 3
-
-  var CLIP_FULL = 60; // viewBox units for full hover reveal
-  var CX = 29, CY = 32; // shape center for click-scale transform
+  var W = 46, H = Math.round(46 * 63 / 58);
+  var TIP_X = Math.round(29 / 58 * W);
+  var TIP_Y = Math.round(3.9 / 63 * H);
+  var CX = 29, CY = 32;
 
   // ── CSS ────────────────────────────────────────────────────────────────
   var css = document.createElement('style');
@@ -42,32 +37,88 @@
     '  -webkit-transform-origin: ' + TIP_X + 'px ' + TIP_Y + 'px;',
     '  transform-origin: '         + TIP_X + 'px ' + TIP_Y + 'px;',
     '}',
-    '#jc svg { display: block; overflow: visible; }'
+    '#jc svg { display: block; overflow: visible; }',
+    '@keyframes jc-wobble {',
+    '  0%,100% { transform: scale(1, 1)         rotate(0deg); }',
+    '  28%     { transform: scale(1.045, 0.955) rotate(0.6deg); }',
+    '  58%     { transform: scale(0.96,  1.04)  rotate(-0.6deg); }',
+    '  82%     { transform: scale(1.025, 0.975) rotate(0.3deg); }',
+    '}',
+    '#jc-wobble {',
+    '  transform-box: fill-box;',
+    '  transform-origin: center;',
+    '  animation: jc-wobble 3.4s ease-in-out infinite;',
+    '}',
+    '@media (max-width: 800px) {',
+    '  *, *::before, *::after { cursor: auto !important; }',
+    '  .is-dragging, .is-dragging * { cursor: auto !important; }',
+    '  #jc { display: none; }',
+    '}'
   ].join('\n');
   document.head.appendChild(css);
 
   // ── Cursor element ─────────────────────────────────────────────────────
   var el = document.createElement('div');
   el.id = 'jc';
+
   el.innerHTML =
     '<svg xmlns="http://www.w3.org/2000/svg"' +
     '     width="' + W + '" height="' + H + '" viewBox="0 0 58 63">' +
-    '  <defs>' +
-    '    <clipPath id="jc-clip" clipPathUnits="userSpaceOnUse">' +
-    '      <rect id="jc-rect" x="-2" y="-2" width="62" height="0"/>' +
-    '    </clipPath>' +
-    '  </defs>' +
-    '  <path d="' + D_OUTER + '"' +
-    '        fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"/>' +
-    '  <g id="jc-fill">' +
-    '    <path d="' + D_INNER + '" fill="#6C7FEF"/>' +
-    '    <path d="' + D_INNER + '" fill="#ffffff" clip-path="url(#jc-clip)"/>' +
-    '  </g>' +
+    '<defs>' +
+
+    // Glow filter
+    '<filter id="jc-blur" x="-60%" y="-60%" width="220%" height="220%">' +
+    '  <feGaussianBlur stdDeviation="3" in="SourceGraphic"/>' +
+    '</filter>' +
+
+    // Directional gradient — tip (magenta) to tail (pearl white) in local
+    // SVG space. CSS rotate() on #jc carries it automatically so it always
+    // faces the cursor's movement direction with zero delay.
+    '<linearGradient id="jc-grad" gradientUnits="userSpaceOnUse"' +
+    '    x1="29" y1="-2" x2="29" y2="60">' +
+    '  <stop offset="0%"   stop-color="#d946ef"/>' +
+    '  <stop id="jc-grad-mid" offset="50%"  stop-color="#3b82f6"/>' +
+    '  <stop offset="100%" stop-color="#f8fafc"/>' +
+    '</linearGradient>' +
+
+    '</defs>' +
+
+    // Wrapper for CSS wobble
+    '<g id="jc-wobble">' +
+
+    // Speed-deformation group: stretches along local Y (tip→tail) when moving fast,
+    // squishes when decelerating. Scaled around the shape center via SVG transform.
+    '<g id="jc-deform">' +
+
+    // Blurred glow layer (same gradient, soft edges)
+    '<path d="' + D_INNER + '" fill="url(#jc-grad)"' +
+    '      filter="url(#jc-blur)" opacity="0.65"/>' +
+
+    // Click-scale group
+    '<g id="jc-fill">' +
+
+    // Sharp gradient body
+    '<path d="' + D_INNER + '" fill="url(#jc-grad)"/>' +
+
+    // Pearl white hover overlay — opacity driven by JS pulse animation.
+    '<path id="jc-white" d="' + D_INNER + '" fill="#f8fafc" opacity="0"/>' +
+
+    '</g>' + // #jc-fill
+
+    // Subtle outline
+    '<path d="' + D_OUTER + '" fill="none"' +
+    '      stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>' +
+
+    '</g>' + // #jc-deform
+    '</g>' + // #jc-wobble
     '</svg>';
+
   document.body.appendChild(el);
 
-  var clipRect  = document.getElementById('jc-rect');
-  var fillGroup = document.getElementById('jc-fill');
+  var fillGroup   = document.getElementById('jc-fill');
+  var deformGroup = document.getElementById('jc-deform');
+  var whitePath   = document.getElementById('jc-white');
+  var gradMidStop = document.getElementById('jc-grad-mid');
 
   // ── State ──────────────────────────────────────────────────────────────
   var mx = -999, my = -999;
@@ -78,11 +129,17 @@
   var tgtAngle = -90;
   var angVel   = 0;
 
-  var clipH    = 0;
-  var tgtClipH = 0;
+  // White overlay opacity: lerps toward tgtWhite, then pulse is added on top
+  var whiteOpacity = 0;
+  var tgtWhite     = 0;   // 0 = not hovered, 1 = hovered
 
   var fillScale    = 1;
   var tgtFillScale = 1;
+
+  // Squash-and-stretch
+  var stretchY    = 1;
+  var stretchYVel = 0;
+  var prevSpeed   = 0; // used to measure deceleration each frame
 
   var active = false;
 
@@ -109,17 +166,13 @@
 
   function checkHover(x, y) {
     var target = document.elementFromPoint(x, y);
-    tgtClipH = (target && target.closest(INTERACTIVE)) ? CLIP_FULL : 0;
+    tgtWhite = (target && target.closest(INTERACTIVE)) ? 1 : 0;
   }
 
   // ── Position tracking ──────────────────────────────────────────────────
-  // Uses both pointermove and mousemove so the cursor keeps following even
-  // when setPointerCapture routes pointer events away from the document in
-  // some browsers. Deduplication prevents double velocity updates.
   var lastTrackedX = null, lastTrackedY = null;
 
   function handleMove(clientX, clientY) {
-    // Deduplicate: skip if this exact position was already handled this frame
     if (clientX === lastTrackedX && clientY === lastTrackedY) return;
     lastTrackedX = clientX;
     lastTrackedY = clientY;
@@ -145,12 +198,9 @@
     }
   }
 
-  // pointermove: works during setPointerCapture (events retargeted but still bubble)
   window.addEventListener('pointermove', function (e) {
     if (e.isPrimary) handleMove(e.clientX, e.clientY);
   });
-
-  // mousemove: fallback for browsers that drop pointermove during capture
   window.addEventListener('mousemove', function (e) {
     handleMove(e.clientX, e.clientY);
   });
@@ -159,10 +209,18 @@
     if (e.isPrimary) active = false;
   });
 
+  if (window.MutationObserver && document.body) {
+    new MutationObserver(function () {
+      if (document.body.classList.contains('has-expanded-card')) {
+        active = false;
+      }
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+
   // ── Hover detection ────────────────────────────────────────────────────
   document.addEventListener('pointerover', function (e) {
     if (!e.isPrimary) return;
-    tgtClipH = e.target.closest(INTERACTIVE) ? CLIP_FULL : 0;
+    tgtWhite = e.target.closest(INTERACTIVE) ? 1 : 0;
   });
 
   // ── Click animation ────────────────────────────────────────────────────
@@ -173,7 +231,6 @@
   function onRelease(e) {
     if (!e.isPrimary) return;
     tgtFillScale = 1;
-    // Re-evaluate hover: pointerover won't re-fire after capture ends
     checkHover(e.clientX, e.clientY);
   }
 
@@ -182,26 +239,66 @@
 
   // ── Render loop ────────────────────────────────────────────────────────
   function tick() {
-    // Reset deduplication flag each frame so new events are accepted
     lastTrackedX = null;
     lastTrackedY = null;
 
-    // Spring for rotation — low stiffness + high damping = flowing glide
+    // Decay velocity toward zero each frame so stretch resets when mouse stops
+    vx *= 0.87;
+    vy *= 0.87;
+
+    // Subtle gradient animation: midpoint oscillates slowly, creating a color breathe
+    var gradPhase = Date.now() / 1800;
+    var midOff = 50 + Math.sin(gradPhase) * 14;
+    gradMidStop.setAttribute('offset', midOff.toFixed(1) + '%');
+
+    // Spring rotation
     var delta = shortDelta(angle, tgtAngle);
     angVel  += delta * 0.055;
     angVel  *= 0.84;
     angle   += angVel;
 
-    // Slow lerp for hover clip reveal (tip-to-tail wipe)
-    clipH += (tgtClipH - clipH) * 0.06;
-    clipRect.setAttribute('height', clipH < 0.1 ? 0 : clipH);
+    // White overlay: slow lerp toward tgtWhite (0 or 1).
+    // This creates the "progressive replacement" feel on enter/exit.
+    whiteOpacity += (tgtWhite - whiteOpacity) * 0.045;
 
-    // Lerp for click scale
+    // Sinusoidal pulse layered on top, scaled by how much white is present.
+    // Amplitude: ±0.18, period: ~900 ms — gentle breathing while hovering.
+    var pulse = Math.sin(Date.now() / 450) * 0.18 * whiteOpacity;
+    var finalOpacity = Math.min(1, Math.max(0, whiteOpacity + pulse));
+    whitePath.setAttribute('opacity', finalOpacity.toFixed(3));
+
+    // Squash-and-stretch deformation
+    // Speed from the EMA velocity vector (already smoothed).
+    var speed = Math.sqrt(vx * vx + vy * vy);
+    // Target: elongate along Y (tip→tail) proportional to speed, capped at 40%.
+    // The cursor is in local SVG space so Y = movement direction after CSS rotation.
+    // Stretch target: above 1 when fast, explicitly below 1 when decelerating.
+    // Deceleration = positive drop in speed this frame → drives target into squish zone
+    // directly rather than relying on spring overshoot alone.
+    var decel       = Math.max(0, prevSpeed - speed);
+    var stretch     = Math.min(speed  * 0.07, 0.45);  // how much to elongate
+    var squish      = Math.min(decel  * 0.40, 0.40);  // how much to compress
+    var tgtStretchY = 1 + stretch - squish;
+    prevSpeed = speed;
+
+    var stretchDelta = tgtStretchY - stretchY;
+    stretchYVel += stretchDelta * 0.28;
+    stretchYVel *= 0.55;
+    stretchY    += stretchYVel;
+    // Area conservation: compress X as Y grows (and vice-versa on squish)
+    var stretchX = 1 / Math.sqrt(Math.max(0.5, stretchY));
+    deformGroup.setAttribute('transform',
+      'translate(' + CX + ' ' + CY + ')' +
+      ' scale(' + stretchX.toFixed(4) + ',' + stretchY.toFixed(4) + ')' +
+      ' translate(' + (-CX) + ' ' + (-CY) + ')'
+    );
+
+    // Click scale
     fillScale += (tgtFillScale - fillScale) * 0.18;
     setFillTransform(fillScale);
 
-    // Position: tip pinned to pointer, rotated around tip
-    var t = active
+    // Position
+    var t = active && !mqSmall.matches
       ? 'translate(' + (mx - TIP_X) + 'px,' + (my - TIP_Y) + 'px)' +
         ' rotate(' + angle + 'deg)'
       : 'translate(-999px,-999px)';

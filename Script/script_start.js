@@ -96,6 +96,11 @@ function openCard(card) {
 
   animateCardTransform(card, fromTransform, "translate(0px, 0px) scale(1, 1)", "4px", "0px", OPEN_DURATION_MS);
   document.querySelectorAll(".mouse-logo-tooltip").forEach((tt) => tt.classList.remove("is-visible"));
+
+  const openedIframe = card.querySelector("iframe");
+  if (openedIframe && openedIframe.contentWindow) {
+    openedIframe.contentWindow.postMessage("show-close", "*");
+  }
 }
 
 function closeCard(card) {
@@ -145,6 +150,11 @@ function closeCard(card) {
     // Flush the layout, then re-enable transitions so hover effects work again.
     card.getBoundingClientRect();
     card.style.transition = "";
+
+    const closedIframe = card.querySelector("iframe");
+    if (closedIframe && closedIframe.contentWindow) {
+      closedIframe.contentWindow.postMessage("hide-close", "*");
+    }
   };
 
   const fallbackTimer = window.setTimeout(() => {

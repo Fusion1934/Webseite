@@ -37,10 +37,18 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const closeBtn = document.querySelector('.close-button');
-      if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-          // Tell the parent Start.html to close this iframe
-          window.parent.postMessage('close-iframe', '*');
+      if (!closeBtn) return;
+
+      closeBtn.addEventListener('click', () => {
+        window.parent.postMessage('close-iframe', '*');
+      });
+
+      // Hide close button when rendered as a card thumbnail in an iframe
+      if (window.self !== window.top) {
+        closeBtn.style.display = 'none';
+        window.addEventListener('message', (e) => {
+          if (e.data === 'show-close') closeBtn.style.display = '';
+          if (e.data === 'hide-close') closeBtn.style.display = 'none';
         });
       }
     });
