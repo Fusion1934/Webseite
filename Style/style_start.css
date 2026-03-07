@@ -272,9 +272,17 @@ body.has-expanded-card .cards-container {
     bottom: -15px;
   }
 
+  .tags-image {
+    max-width: clamp(260px, 88vw, 760px);
+  }
+
   .custom-cursor-label {
     right: 0px;
     bottom: -30px;
+  }
+
+  .cursor-image {
+    max-width: clamp(130px, 16vw, 220px);
   }
 
   .preview-card {
