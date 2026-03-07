@@ -70,13 +70,23 @@ function openCard(card) {
   if (activeCard || card.dataset.expanded === "true") return;
 
   const rect = card.getBoundingClientRect();
-  const fromTransform = `translate(${rect.left}px, ${rect.top}px) scale(${rect.width / window.innerWidth}, ${rect.height / window.innerHeight})`;
+
+  // Insert an invisible placeholder so the flex layout doesn't shift while
+  // the card is position:fixed (out of flow).
+  const placeholder = card.cloneNode(false);
+  placeholder.style.visibility = "hidden";
+  placeholder.style.pointerEvents = "none";
+  placeholder.removeAttribute("href");
+  card.parentNode.insertBefore(placeholder, card);
+  card._placeholder = placeholder;
 
   const iframeWrapper = card.querySelector(".iframe-wrapper");
   if (iframeWrapper) {
     iframeWrapper.style.transition = "none";
     iframeWrapper.style.transform = "scale(1)";
   }
+
+  const fromTransform = `translate(${rect.left}px, ${rect.top}px) scale(${rect.width / window.innerWidth}, ${rect.height / window.innerHeight})`;
 
   document.body.classList.add("has-expanded-card");
   card.classList.add("is-expanded");
@@ -93,13 +103,17 @@ function closeCard(card) {
 
   stopActiveTransition();
 
-  // Temporarily restore default layout to measure where the card should return.
-  card.classList.remove("is-expanded");
-  document.body.classList.remove("has-expanded-card");
-  const targetRect = card.getBoundingClientRect();
+  // Measure target position from the placeholder — no layout thrash needed.
+  const placeholder = card._placeholder;
+  const targetRect = placeholder ? placeholder.getBoundingClientRect() : (() => {
+    card.classList.remove("is-expanded");
+    document.body.classList.remove("has-expanded-card");
+    const r = card.getBoundingClientRect();
+    document.body.classList.add("has-expanded-card");
+    card.classList.add("is-expanded");
+    return r;
+  })();
 
-  document.body.classList.add("has-expanded-card");
-  card.classList.add("is-expanded");
   setIframeInteractive(card, false);
 
   const toTransform = `translate(${targetRect.left}px, ${targetRect.top}px) scale(${targetRect.width / window.innerWidth}, ${targetRect.height / window.innerHeight})`;
@@ -110,14 +124,16 @@ function closeCard(card) {
   card.style.borderRadius = "0px";
   card.getBoundingClientRect();
 
-  // finish() removes is-expanded BEFORE clearing inline styles to avoid a snap.
   const finish = () => {
     cleanupTransition = null;
+    // Freeze transitions so no animation fires during the style reset.
+    card.style.transition = "none";
+    if (placeholder) placeholder.remove();
+    card._placeholder = null;
     card.classList.remove("is-expanded");
     card.dataset.expanded = "false";
     document.body.classList.remove("has-expanded-card");
     activeCard = null;
-    card.style.transition = "";
     card.style.transformOrigin = "";
     card.style.transform = "";
     card.style.borderRadius = "";
@@ -126,6 +142,9 @@ function closeCard(card) {
       iframeWrapper.style.transition = "";
       iframeWrapper.style.transform = "";
     }
+    // Flush the layout, then re-enable transitions so hover effects work again.
+    card.getBoundingClientRect();
+    card.style.transition = "";
   };
 
   const fallbackTimer = window.setTimeout(() => {
