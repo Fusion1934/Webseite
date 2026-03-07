@@ -1,5 +1,7 @@
 .start-body {
   overflow: hidden;
+  background-image: url("../Image/Background.png");
+  background-size: 100% 100%;
 }
 
 .start-page {
