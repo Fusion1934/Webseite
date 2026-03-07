@@ -1,9 +1,3 @@
-html,
-body {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
 .contact-list {
   max-width: 860px;
 }
@@ -36,13 +30,6 @@ body {
 }
 
 @media (max-width: 700px) {
-
-  .contact-list p {
-    min-height: var(--rule-gap);
-    align-items: flex-end;
-    padding-bottom: 4px;
-  }
-
   .note {
     position: absolute;
     top: 400px;

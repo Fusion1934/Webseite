@@ -1,7 +1,5 @@
 .start-body {
   overflow: hidden;
-  /* Prevent scrolling on the start page */
-  background-color: var(--paper);
 }
 
 .start-page {
@@ -312,31 +310,7 @@ body.has-expanded-card .cards-container {
   }
 }
 
-/* --- hover.js Tooltip Styles --- */
-.logo-label {
-  display: none;
-}
-
+/* Tooltip needs to sit above expanded cards on the start page */
 .mouse-logo-tooltip {
-  position: fixed;
-  left: 0;
-  top: 0;
-  transform: translate3d(-9999px, -9999px, 0);
-  background: #ffffff;
-  color: #202020;
-  border: 2px solid rgba(0, 0, 0, 0.12);
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  white-space: nowrap;
-  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.12);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 120ms ease;
   z-index: 9999;
-}
-
-.mouse-logo-tooltip.is-visible {
-  opacity: 1;
 }

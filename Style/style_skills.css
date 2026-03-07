@@ -1,37 +1,10 @@
-html,
-body {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
 .skills-page {
-  min-height: 100vh;
-  position: relative;
   padding: 18px 24px 140px;
-  isolation: isolate;
-}
-
-.skills-page::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: var(--rules-start);
-  bottom: 0;
-  z-index: 0;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0 calc(var(--rule-gap) - var(--rule-thickness)),
-    var(--line) calc(var(--rule-gap) - var(--rule-thickness)) var(--rule-gap)
-  );
 }
 
 .skills-section {
   position: relative;
   z-index: 1;
-}
-
-.skills-section {
   margin: 0 0 68px;
 }
 
@@ -177,34 +150,6 @@ body {
   width: clamp(120px, 15vw, 180px);
 }
 
-.logo-label {
-  display: none;
-}
-
-.mouse-logo-tooltip {
-  position: fixed;
-  left: 0;
-  top: 0;
-  transform: translate3d(-9999px, -9999px, 0);
-  background: #ffffff;
-  color: #202020;
-  border: 2px solid rgba(0, 0, 0, 0.12);
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  white-space: nowrap;
-  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.12);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 120ms ease;
-  z-index: 200;
-}
-
-.mouse-logo-tooltip.is-visible {
-  opacity: 1;
-}
-
 .skills-page .polaroid.is-dragging,
 .skills-page .logo-item.is-dragging {
   cursor: grabbing;
@@ -278,8 +223,7 @@ body {
   .note-card,
   .yellow,
   .purple,
-  .blue,
-  .tools .note-card {
+  .blue {
     transform: none;
   }
 
@@ -383,5 +327,4 @@ body {
   .tool-icons .icon {
     transform: rotate(0deg) !important;
   }
-
 }
