@@ -1,125 +1,141 @@
-// script_start.js
+const cards = Array.from(document.querySelectorAll(".preview-card"));
+let activeCard = null;
+let cleanupTransition = null;
+const OPEN_DURATION_MS = 520;
+const CLOSE_DURATION_MS = 420;
+const EASING = "cubic-bezier(0.86, 0, 0.07, 1)";
 
-console.log("Start page loaded");
+function setIframeInteractive(card, interactive) {
+  const overlay = card.querySelector(".iframe-overlay");
+  const iframeWrapper = card.querySelector(".iframe-wrapper");
 
-// Prevent drag on cards so they don't interfere with the link click if user clicks and drags
-document.querySelectorAll('.preview-card').forEach(card => {
-    card.addEventListener('dragstart', (e) => {
-        e.preventDefault();
-    });
+  if (overlay) overlay.style.display = interactive ? "none" : "block";
+  if (iframeWrapper) iframeWrapper.style.pointerEvents = interactive ? "auto" : "none";
+}
 
-    card.addEventListener('click', (e) => {
-        // Only trigger expansion on cards with actual links, or just all of them for now
-        e.preventDefault(); // Prevent immediate navigation
+function stopActiveTransition() {
+  if (typeof cleanupTransition === "function") {
+    cleanupTransition();
+    cleanupTransition = null;
+  }
+}
 
-        if (card.dataset.expanded === "true") return;
+function clearInlineAnimationStyles(card) {
+  card.style.transition = "";
+  card.style.transformOrigin = "";
+  card.style.transform = "";
+  card.style.borderRadius = "";
+}
 
-        // 1. First: Get current layout properties (the fanned out card)
-        const rect = card.getBoundingClientRect();
+function animateCardTransform(card, fromTransform, toTransform, fromRadius, toRadius, duration) {
+  stopActiveTransition();
 
-        // 2. Last: Add expanded class to calculate full screen target
-        card.classList.add('is-expanded');
-        card.dataset.expanded = "true";
+  card.style.transition = "none";
+  card.style.transformOrigin = "top left";
+  card.style.transform = fromTransform;
+  card.style.borderRadius = fromRadius;
+  card.getBoundingClientRect();
 
-        // 3. Play: Animate from 'First' to 'Last'
-        card.animate([
-            {
-                position: 'fixed',
-                top: `${rect.top}px`,
-                left: `${rect.left}px`,
-                width: `${rect.width}px`,
-                height: `${rect.height}px`,
-                margin: '0',
-                transform: 'none',
-                borderRadius: '4px',
-                zIndex: 9999
-            },
-            {
-                position: 'fixed',
-                top: '0px',
-                left: '0px',
-                width: '100vw',
-                height: '100vh',
-                margin: '0',
-                transform: 'none',
-                borderRadius: '0px',
-                zIndex: 9999
-            }
-        ], {
-            duration: 500,
-            easing: 'cubic-bezier(0.86, 0, 0.07, 1)'
-        });
+  const handleEnd = (event) => {
+    if (event.target !== card || event.propertyName !== "transform") return;
+    card.removeEventListener("transitionend", handleEnd);
+    cleanupTransition = null;
+    clearInlineAnimationStyles(card);
+  };
 
-        // Allow pointer events on the iframe so the user can interact
-        const overlay = card.querySelector('.iframe-overlay');
-        if (overlay) overlay.style.display = 'none';
+  const fallbackTimer = window.setTimeout(() => {
+    card.removeEventListener("transitionend", handleEnd);
+    cleanupTransition = null;
+    clearInlineAnimationStyles(card);
+  }, duration + 80);
 
-        const iframeWrapper = card.querySelector('.iframe-wrapper');
-        if (iframeWrapper) {
-            iframeWrapper.style.pointerEvents = 'auto';
-            // We need the iframe to act like a normal page now
-            iframeWrapper.classList.add('active-iframe');
-        }
+  cleanupTransition = () => {
+    window.clearTimeout(fallbackTimer);
+    card.removeEventListener("transitionend", handleEnd);
+    clearInlineAnimationStyles(card);
+  };
 
-        // Hide tooltips
-        document.querySelectorAll('.mouse-logo-tooltip').forEach(tt => tt.classList.remove('is-visible'));
-    });
+  card.addEventListener("transitionend", handleEnd);
+
+  requestAnimationFrame(() => {
+    card.style.transition = `transform ${duration}ms ${EASING}, border-radius ${duration}ms ${EASING}`;
+    card.style.transform = toTransform;
+    card.style.borderRadius = toRadius;
+  });
+}
+
+function openCard(card) {
+  if (activeCard || card.dataset.expanded === "true") return;
+
+  const rect = card.getBoundingClientRect();
+  const fromTransform = `translate(${rect.left}px, ${rect.top}px) scale(${rect.width / window.innerWidth}, ${rect.height / window.innerHeight})`;
+
+  document.body.classList.add("has-expanded-card");
+  card.classList.add("is-expanded");
+  card.dataset.expanded = "true";
+  setIframeInteractive(card, true);
+  activeCard = card;
+
+  animateCardTransform(card, fromTransform, "translate(0px, 0px) scale(1, 1)", "4px", "0px", OPEN_DURATION_MS);
+  document.querySelectorAll(".mouse-logo-tooltip").forEach((tt) => tt.classList.remove("is-visible"));
+}
+
+function closeCard(card) {
+  if (!card || card.dataset.expanded !== "true") return;
+
+  stopActiveTransition();
+
+  // Temporarily restore default layout to measure where the card should return.
+  card.classList.remove("is-expanded");
+  document.body.classList.remove("has-expanded-card");
+  const targetRect = card.getBoundingClientRect();
+
+  document.body.classList.add("has-expanded-card");
+  card.classList.add("is-expanded");
+
+  const toTransform = `translate(${targetRect.left}px, ${targetRect.top}px) scale(${targetRect.width / window.innerWidth}, ${targetRect.height / window.innerHeight})`;
+
+  animateCardTransform(card, "translate(0px, 0px) scale(1, 1)", toTransform, "0px", "4px", CLOSE_DURATION_MS);
+
+  window.setTimeout(() => {
+    card.classList.remove("is-expanded");
+    card.dataset.expanded = "false";
+    document.body.classList.remove("has-expanded-card");
+    setIframeInteractive(card, false);
+    activeCard = null;
+    clearInlineAnimationStyles(card);
+  }, CLOSE_DURATION_MS + 16);
+}
+
+cards.forEach((card) => {
+  card.addEventListener("dragstart", (event) => {
+    event.preventDefault();
+  });
+
+  setIframeInteractive(card, false);
+
+  card.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    if (activeCard === card) {
+      closeCard(card);
+      return;
+    }
+
+    if (!activeCard) {
+      openCard(card);
+    }
+  });
 });
 
-// We need a way to close the expanded card. Since the close button is IN the iframe,
-// we can listen for a postMessage from the iframe, OR we can add a close button here.
-// Since the prompt says "Each of the cards have an x-button to close", if that X is inside
-// the Contact/Skills HTML, we must inject a script into those or use window.parent.postMessage.
-// Let's listen for postMessages.
-window.addEventListener('message', (event) => {
-    if (event.data === 'close-iframe') {
-        const expandedCard = document.querySelector('.preview-card.is-expanded');
-        if (expandedCard) {
-            expandedCard.dataset.expanded = "false";
+window.addEventListener("message", (event) => {
+  if (event.data === "close-iframe") {
+    closeCard(activeCard);
+  }
+});
 
-            const overlay = expandedCard.querySelector('.iframe-overlay');
-            if (overlay) overlay.style.display = 'block';
-
-            const iframeWrapper = expandedCard.querySelector('.iframe-wrapper');
-            if (iframeWrapper) {
-                iframeWrapper.style.pointerEvents = 'none';
-                iframeWrapper.classList.remove('active-iframe');
-            }
-
-            // Remove class to restore standard layout (fanned out position)
-            expandedCard.classList.remove('is-expanded');
-
-            // Get the destination bounds
-            const destRect = expandedCard.getBoundingClientRect();
-
-            // Animate from fullscreen to destination
-            expandedCard.animate([
-                {
-                    position: 'fixed',
-                    top: '0px',
-                    left: '0px',
-                    width: '100vw',
-                    height: '100vh',
-                    margin: '0',
-                    transform: 'none',
-                    borderRadius: '0px',
-                    zIndex: 9999
-                },
-                {
-                    position: 'fixed',
-                    top: `${destRect.top}px`,
-                    left: `${destRect.left}px`,
-                    width: `${destRect.width}px`,
-                    height: `${destRect.height}px`,
-                    margin: '0',
-                    transform: 'none',
-                    borderRadius: '4px',
-                    zIndex: 9999
-                }
-            ], {
-                duration: 500,
-                easing: 'cubic-bezier(0.86, 0, 0.07, 1)'
-            });
-        }
-    }
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeCard(activeCard);
+  }
 });
