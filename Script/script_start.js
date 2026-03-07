@@ -112,13 +112,13 @@ function closeCard(card) {
 function updatePreviewScales() {
   const vw = window.innerWidth || 1;
   const vh = window.innerHeight || 1;
+  const ratio = `${vw} / ${vh}`;
 
   cards.forEach((card) => {
     const rect = card.getBoundingClientRect();
-    const scaleX = rect.width / vw;
-    const scaleY = rect.height / vh;
-    card.style.setProperty("--preview-scale-x", `${scaleX}`);
-    card.style.setProperty("--preview-scale-y", `${scaleY}`);
+    const scale = rect.width / vw;
+    card.style.setProperty("--preview-ratio", ratio);
+    card.style.setProperty("--preview-scale", `${scale}`);
   });
 }
 

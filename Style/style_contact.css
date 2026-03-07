@@ -1,3 +1,9 @@
+html,
+body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .contact-list {
   max-width: 860px;
 }

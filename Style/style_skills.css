@@ -1,3 +1,9 @@
+html,
+body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .skills-page {
   min-height: 100vh;
   position: relative;
