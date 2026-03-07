@@ -8,9 +8,11 @@ const EASING = "cubic-bezier(0.86, 0, 0.07, 1)";
 function setIframeInteractive(card, interactive) {
   const overlay = card.querySelector(".iframe-overlay");
   const iframeWrapper = card.querySelector(".iframe-wrapper");
+  const iframe = card.querySelector("iframe");
 
   if (overlay) overlay.style.display = interactive ? "none" : "block";
   if (iframeWrapper) iframeWrapper.style.pointerEvents = interactive ? "auto" : "none";
+  if (iframe) iframe.setAttribute("scrolling", interactive ? "yes" : "no");
 }
 
 function stopActiveTransition() {
@@ -92,6 +94,7 @@ function closeCard(card) {
 
   document.body.classList.add("has-expanded-card");
   card.classList.add("is-expanded");
+  setIframeInteractive(card, false);
 
   const toTransform = `translate(${targetRect.left}px, ${targetRect.top}px) scale(${targetRect.width / window.innerWidth}, ${targetRect.height / window.innerHeight})`;
 
@@ -101,10 +104,22 @@ function closeCard(card) {
     card.classList.remove("is-expanded");
     card.dataset.expanded = "false";
     document.body.classList.remove("has-expanded-card");
-    setIframeInteractive(card, false);
     activeCard = null;
     clearInlineAnimationStyles(card);
   }, CLOSE_DURATION_MS + 16);
+}
+
+function updatePreviewScales() {
+  const vw = window.innerWidth || 1;
+  const vh = window.innerHeight || 1;
+
+  cards.forEach((card) => {
+    const rect = card.getBoundingClientRect();
+    const scaleX = rect.width / vw;
+    const scaleY = rect.height / vh;
+    card.style.setProperty("--preview-scale-x", `${scaleX}`);
+    card.style.setProperty("--preview-scale-y", `${scaleY}`);
+  });
 }
 
 cards.forEach((card) => {
@@ -127,6 +142,9 @@ cards.forEach((card) => {
     }
   });
 });
+
+updatePreviewScales();
+window.addEventListener("resize", updatePreviewScales);
 
 window.addEventListener("message", (event) => {
   if (event.data === "close-iframe") {
