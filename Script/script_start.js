@@ -121,6 +121,12 @@ function closeCard(card) {
 
   setIframeInteractive(card, false);
 
+  // Tell the iframe's cursor.js to hide immediately so no ghost during close animation
+  const closingIframe = card.querySelector("iframe");
+  if (closingIframe && closingIframe.contentWindow) {
+    closingIframe.contentWindow.postMessage("hide-cursor", "*");
+  }
+
   const toTransform = `translate(${targetRect.left}px, ${targetRect.top}px) scale(${targetRect.width / window.innerWidth}, ${targetRect.height / window.innerHeight})`;
 
   card.style.transition = "none";

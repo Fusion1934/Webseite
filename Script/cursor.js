@@ -48,11 +48,6 @@
     '  transform-box: fill-box;',
     '  transform-origin: center;',
     '  animation: jc-wobble 3.4s ease-in-out infinite;',
-    '}',
-    '@media (max-width: 800px) {',
-    '  *, *::before, *::after { cursor: auto !important; }',
-    '  .is-dragging, .is-dragging * { cursor: auto !important; }',
-    '  #jc { display: none; }',
     '}'
   ].join('\n');
   document.head.appendChild(css);
@@ -217,6 +212,17 @@
     }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
 
+  // When running inside an iframe: hide cursor immediately when the parent
+  // starts closing the card (before the close animation begins).
+  if (window.self !== window.top) {
+    window.addEventListener('message', function (e) {
+      if (e.data === 'hide-cursor') {
+        active = false;
+        mx = -999; my = -999;
+      }
+    });
+  }
+
   // ── Hover detection ────────────────────────────────────────────────────
   document.addEventListener('pointerover', function (e) {
     if (!e.isPrimary) return;
@@ -298,7 +304,7 @@
     setFillTransform(fillScale);
 
     // Position
-    var t = active && !mqSmall.matches
+    var t = active
       ? 'translate(' + (mx - TIP_X) + 'px,' + (my - TIP_Y) + 'px)' +
         ' rotate(' + angle + 'deg)'
       : 'translate(-999px,-999px)';
