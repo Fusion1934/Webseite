@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const draggableItems = document.querySelectorAll(
-    ".note, .note-card, .skills-page .polaroid, .skills-page .logo-item"
+    ".note, .note-card, .skills-page .polaroid, .about-page .polaroid, .skills-page .logo-item"
   );
   if (!draggableItems.length) return;
   const mobileQuery = window.matchMedia("(max-width: 700px)");

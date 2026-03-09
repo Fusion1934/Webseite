@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Me</title>
+  <link rel="stylesheet" href="Style/style_base.css" />
+  <link rel="stylesheet" href="Style/style_skills.css" />
+  <link rel="stylesheet" href="Style/style_about.css" />
+</head>
+
+<body>
+  <main class="page about-page">
+    <header class="top-bar">
+      <h1>About Me</h1>
+      <button class="close-button" aria-label="Close about page">
+        <span></span>
+        <span></span>
+      </button>
+      <div class="accent-line" aria-hidden="true"></div>
+    </header>
+
+    <!-- Frame 20 (left) + yellow note (right) -->
+    <section class="about-section">
+      <div class="split left-image">
+        <figure class="polaroid">
+          <img src="Image/About me/Frame 20.png" alt="Photo of Joaquin" />
+        </figure>
+        <article class="note-card yellow">
+          <p>I am a User Experience Design student at technische Hochschule Ingolstadt with a strong love for designing,
+            implementing and testing interfaces for humans. My work combines UX thinking with hands-on development in web
+            technologies, interactive prototyping, and 3D design.</p>
+        </article>
+      </div>
+      <img src="Image/About me/Group 6.png" alt="That's me" class="annotation-me" />
+    </section>
+
+    <!-- Purple note (left) + Frame 46 (right) -->
+    <section class="about-section">
+      <div class="split right-image">
+        <article class="note-card purple">
+          <p>I am deeply fascinated by the intricacies of designing across cultures. I believe that every design is
+            inherently rooted in a specific cultural context, which has led me to focus strongly on multicultural
+            projects throughout my work.</p>
+        </article>
+        <figure class="polaroid wide">
+          <img src="Image/About me/Frame 46.png" alt="Joaquin holding project poster" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- Motto -->
+    <section class="motto-section">
+      <img src="Image/About me/Group 7.png" alt="My Motto" class="motto-label" />
+      <blockquote class="motto-quote">
+        "Never stop asking questions<br />and seeking answers.<br />Curiosity fuels progress."
+      </blockquote>
+      <img src="Image/About me/Group 8.png" alt="Jensen Huang signature" class="motto-signature" />
+    </section>
+  </main>
+
+  <script src="Script/drag_notes.js"></script>
+  <script src="Script/hover.js"></script>
+  <script src="Script/cursor.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const closeBtn = document.querySelector('.close-button');
+      if (!closeBtn) return;
+
+      closeBtn.addEventListener('click', () => {
+        window.parent.postMessage('close-iframe', '*');
+      });
+
+      if (window.self !== window.top) {
+        closeBtn.style.display = 'none';
+        window.addEventListener('message', (e) => {
+          if (e.data === 'show-close') closeBtn.style.display = '';
+          if (e.data === 'hide-close') closeBtn.style.display = 'none';
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

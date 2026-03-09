@@ -1,0 +1,117 @@
+.about-page {
+  padding: 18px 24px 140px;
+}
+
+/* ── Sections ─────────────────────────────────────────────── */
+
+.about-section {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 60px;
+}
+
+/* ── Override polaroid sizes for portrait photos ──────────── */
+/*
+  style_skills.css sets polaroids to min(680px, 58vw) which is designed
+  for wide project screenshots. Portrait photos need smaller widths.
+*/
+
+@media (min-width: 701px) {
+  /* Frame 20 — headshot */
+  .about-page .split:not(.tools-row) .polaroid {
+    width: min(400px, 36vw);
+  }
+
+  /* Frame 46 — full-body with poster, larger */
+  .about-page .split:not(.tools-row) .polaroid.wide {
+    width: min(460px, 42vw);
+  }
+
+  /* Note cards sized to match the photos */
+  .about-page .split:not(.tools-row) .note-card {
+    width: min(380px, 34vw);
+  }
+
+  /* Top-align the yellow note with Frame 20 (remove the default downward offset) */
+  .about-page .left-image .note-card {
+    margin-top: 0;
+  }
+}
+
+/* ── "That's me" annotation — below Frame 20 ─────────────── */
+
+.annotation-me {
+  display: block;
+  width: clamp(110px, 13vw, 175px);
+  margin: 16px 0 0 clamp(28px, 5vw, 72px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Motto section ────────────────────────────────────────── */
+
+.motto-section {
+  position: relative;
+  z-index: 1;
+  margin-top: 40px;
+  padding-bottom: 60px;
+}
+
+.motto-label {
+  display: block;
+  width: clamp(100px, 11vw, 165px);
+  margin: 0 0 14px clamp(28px, 5vw, 72px);
+}
+
+.motto-quote {
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 60px);
+  font-family: "Sora", "Avenir Next", "Trebuchet MS", sans-serif;
+  font-size: clamp(2.2rem, 4.2vw, 4rem);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.motto-signature {
+  display: block;
+  width: clamp(130px, 14vw, 210px);
+  margin: 20px auto 0;
+}
+
+/* ── Mobile ───────────────────────────────────────────────── */
+
+@media (max-width: 700px) {
+  .about-page {
+    padding: 16px 14px 110px;
+  }
+
+  .about-section {
+    margin-bottom: 40px;
+  }
+
+  .annotation-me {
+    width: clamp(100px, 24vw, 140px);
+    margin-left: 10px;
+  }
+
+  .motto-section {
+    margin-top: 20px;
+  }
+
+  .motto-quote {
+    font-size: clamp(1.9rem, 7.5vw, 2.8rem);
+    padding: 0 6px;
+  }
+
+  .motto-label {
+    width: clamp(90px, 24vw, 135px);
+    margin-left: 10px;
+  }
+
+  .motto-signature {
+    width: clamp(110px, 28vw, 160px);
+  }
+}
