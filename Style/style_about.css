@@ -1,0 +1,179 @@
+.about-page {
+  padding: 18px 24px 140px;
+}
+
+/* ── Sections ─────────────────────────────────────────────── */
+
+.about-section {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 60px;
+}
+
+/* ── Override polaroid sizes for portrait photos ──────────── */
+/*
+  style_skills.css sets polaroids to min(680px, 58vw) which is designed
+  for wide project screenshots. Portrait photos need smaller widths.
+*/
+
+/* ── Frame wrapper — keeps polaroid + annotation as one flex item ── */
+
+.frame-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  cursor: grab;
+  touch-action: none;
+}
+
+.frame-wrapper .polaroid {
+  width: 100%;
+  cursor: grab;
+}
+
+@media (min-width: 701px) {
+  /* Frame wrapper takes the width slot that polaroid used to occupy */
+  .about-page .split:not(.tools-row) .frame-wrapper {
+    width: min(400px, 36vw);
+    z-index: 2;
+    margin: 0;
+  }
+
+  /* Polaroid fills its wrapper and must come before the annotation.
+     skills.css sets .left-image .polaroid { order: 1 } which leaks into
+     the frame-wrapper flex context, putting the annotation (order 0) above
+     the photo. Explicitly reset order here so DOM order decides. */
+  .about-page .frame-wrapper .polaroid {
+    order: 0;
+    width: 100%;
+  }
+
+  .about-page .frame-wrapper .annotation-me {
+    order: 1;
+  }
+
+  /* Frame 46 — full-body with poster, larger */
+  .about-page .split:not(.tools-row) .polaroid.wide {
+    width: min(460px, 42vw);
+  }
+
+  /* Note cards sized to match the photos */
+  .about-page .split:not(.tools-row) .note-card {
+    width: min(380px, 34vw);
+  }
+
+  /* Top-align the yellow note with Frame 20 */
+  .about-page .left-image .note-card {
+    margin-top: 0;
+  }
+}
+
+/* ── "That's me" annotation — directly below Frame 20 ─────── */
+
+.annotation-me {
+  display: block;
+  width: clamp(110px, 13vw, 175px);
+  margin-top: 12px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Motto section ────────────────────────────────────────── */
+
+.motto-section {
+  position: relative;
+  z-index: 1;
+  margin-top: 40px;
+  padding-bottom: 60px;
+}
+
+/* Inner wrapper mirrors the split's padding-inline so everything lines up */
+.motto-body {
+  padding-inline: clamp(28px, 5vw, 72px);
+}
+
+.motto-label {
+  display: block;
+  width: clamp(110px, 12vw, 185px);
+  margin: 0 0 16px 0;
+}
+
+.motto-quote {
+  /* Reset all browser blockquote defaults */
+  margin: 0;
+  padding: 0;
+  font-family: "Sora", "Avenir Next", "Trebuchet MS", sans-serif;
+  font-size: clamp(2.2rem, 4.2vw, 4rem);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.motto-signature {
+  display: block;
+  width: clamp(130px, 14vw, 210px);
+  margin: 24px auto 0;
+}
+
+/* ── Mobile ───────────────────────────────────────────────── */
+
+@media (max-width: 700px) {
+  .about-page {
+    padding: 16px 14px 110px;
+  }
+
+  .about-section {
+    margin-bottom: 64px;
+  }
+
+  /* Image always above the post-it — reverse skills.css mobile ordering */
+  .about-page .split:not(.tools-row) .frame-wrapper {
+    order: 1;
+    width: 100%;
+  }
+
+  /* skills.css mobile sets .polaroid to order:2 — force photo above annotation */
+  .about-page .frame-wrapper .polaroid {
+    order: 0 !important;
+  }
+
+  .about-page .frame-wrapper .annotation-me {
+    order: 1;
+  }
+
+  .about-page .split:not(.tools-row) .polaroid.wide {
+    order: 1;
+    width: 100%;
+  }
+
+  .about-page .split:not(.tools-row) .note-card {
+    order: 2;
+  }
+
+  .annotation-me {
+    width: clamp(100px, 24vw, 140px);
+  }
+
+  .motto-section {
+    margin-top: 20px;
+  }
+
+  .motto-body {
+    padding-inline: 10px;
+  }
+
+  .motto-label {
+    width: clamp(90px, 24vw, 135px);
+    margin-bottom: 12px;
+  }
+
+  .motto-quote {
+    font-size: clamp(1.9rem, 7.5vw, 2.8rem);
+  }
+
+  .motto-signature {
+    width: clamp(110px, 28vw, 160px);
+  }
+}

@@ -70,6 +70,22 @@ function openCard(card) {
   if (activeCard || card.dataset.expanded === "true") return;
 
   const rect = card.getBoundingClientRect();
+
+  // Insert an invisible placeholder so the flex layout doesn't shift while
+  // the card is position:fixed (out of flow).
+  const placeholder = card.cloneNode(false);
+  placeholder.style.visibility = "hidden";
+  placeholder.style.pointerEvents = "none";
+  placeholder.removeAttribute("href");
+  card.parentNode.insertBefore(placeholder, card);
+  card._placeholder = placeholder;
+
+  const iframeWrapper = card.querySelector(".iframe-wrapper");
+  if (iframeWrapper) {
+    iframeWrapper.style.transition = "none";
+    iframeWrapper.style.transform = "scale(1)";
+  }
+
   const fromTransform = `translate(${rect.left}px, ${rect.top}px) scale(${rect.width / window.innerWidth}, ${rect.height / window.innerHeight})`;
 
   document.body.classList.add("has-expanded-card");
@@ -80,6 +96,11 @@ function openCard(card) {
 
   animateCardTransform(card, fromTransform, "translate(0px, 0px) scale(1, 1)", "4px", "0px", OPEN_DURATION_MS);
   document.querySelectorAll(".mouse-logo-tooltip").forEach((tt) => tt.classList.remove("is-visible"));
+
+  const openedIframe = card.querySelector("iframe");
+  if (openedIframe && openedIframe.contentWindow) {
+    openedIframe.contentWindow.postMessage("show-close", "*");
+  }
 }
 
 function closeCard(card) {
@@ -87,26 +108,87 @@ function closeCard(card) {
 
   stopActiveTransition();
 
-  // Temporarily restore default layout to measure where the card should return.
-  card.classList.remove("is-expanded");
-  document.body.classList.remove("has-expanded-card");
-  const targetRect = card.getBoundingClientRect();
+  // Measure target position from the placeholder — no layout thrash needed.
+  const placeholder = card._placeholder;
+  const targetRect = placeholder ? placeholder.getBoundingClientRect() : (() => {
+    card.classList.remove("is-expanded");
+    document.body.classList.remove("has-expanded-card");
+    const r = card.getBoundingClientRect();
+    document.body.classList.add("has-expanded-card");
+    card.classList.add("is-expanded");
+    return r;
+  })();
 
-  document.body.classList.add("has-expanded-card");
-  card.classList.add("is-expanded");
   setIframeInteractive(card, false);
+
+  // Tell the iframe's cursor.js to hide immediately so no ghost during close animation
+  const closingIframe = card.querySelector("iframe");
+  if (closingIframe && closingIframe.contentWindow) {
+    closingIframe.contentWindow.postMessage("hide-cursor", "*");
+  }
 
   const toTransform = `translate(${targetRect.left}px, ${targetRect.top}px) scale(${targetRect.width / window.innerWidth}, ${targetRect.height / window.innerHeight})`;
 
-  animateCardTransform(card, "translate(0px, 0px) scale(1, 1)", toTransform, "0px", "4px", CLOSE_DURATION_MS);
+  card.style.transition = "none";
+  card.style.transformOrigin = "top left";
+  card.style.transform = "translate(0px, 0px) scale(1, 1)";
+  card.style.borderRadius = "0px";
+  card.getBoundingClientRect();
 
-  window.setTimeout(() => {
+  const finish = () => {
+    cleanupTransition = null;
+    // Freeze transitions so no animation fires during the style reset.
+    card.style.transition = "none";
+    if (placeholder) placeholder.remove();
+    card._placeholder = null;
     card.classList.remove("is-expanded");
     card.dataset.expanded = "false";
     document.body.classList.remove("has-expanded-card");
     activeCard = null;
+    card.style.transformOrigin = "";
+    card.style.transform = "";
+    card.style.borderRadius = "";
+    const iframeWrapper = card.querySelector(".iframe-wrapper");
+    if (iframeWrapper) {
+      iframeWrapper.style.transition = "";
+      iframeWrapper.style.transform = "";
+    }
+    // Flush the layout, then re-enable transitions so hover effects work again.
+    card.getBoundingClientRect();
+    card.style.transition = "";
+
+    const closedIframe = card.querySelector("iframe");
+    if (closedIframe && closedIframe.contentWindow) {
+      closedIframe.contentWindow.postMessage("hide-close", "*");
+    }
+  };
+
+  const fallbackTimer = window.setTimeout(() => {
+    card.removeEventListener("transitionend", handleEnd);
+    finish();
+  }, CLOSE_DURATION_MS + 80);
+
+  const handleEnd = (event) => {
+    if (event.target !== card || event.propertyName !== "transform") return;
+    card.removeEventListener("transitionend", handleEnd);
+    window.clearTimeout(fallbackTimer);
+    finish();
+  };
+
+  cleanupTransition = () => {
+    card.removeEventListener("transitionend", handleEnd);
+    window.clearTimeout(fallbackTimer);
     clearInlineAnimationStyles(card);
-  }, CLOSE_DURATION_MS + 16);
+    cleanupTransition = null;
+  };
+
+  card.addEventListener("transitionend", handleEnd);
+
+  requestAnimationFrame(() => {
+    card.style.transition = `transform ${CLOSE_DURATION_MS}ms ${EASING}, border-radius ${CLOSE_DURATION_MS}ms ${EASING}`;
+    card.style.transform = toTransform;
+    card.style.borderRadius = "4px";
+  });
 }
 
 function updatePreviewScales() {
